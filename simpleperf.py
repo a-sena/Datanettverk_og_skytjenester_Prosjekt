@@ -31,7 +31,7 @@ def handle_client(client_socket, client_address, args):
         if not data:
             break
 
-        if data == b'BYE':
+        if b'BYE'in data:
             break
 
         amount_of_bytes_received += len(data)
@@ -46,7 +46,7 @@ def handle_client(client_socket, client_address, args):
         transfer_size = amount_of_bytes_received / 1000000
 
     print(transfer_size)
-    rate_server = transfer_size / total_duration
+    rate_server = (transfer_size * 8) / total_duration
     
     print("{:<25} {:<10} {:<15} {:<15}".format("ID", "Interval", "Received", "Rate"))
     print("{0}:{1:<15} 0.0 - {2:.1f}       {3:.0f} {4:<2}      {5:.2f} Mbps".format(client_address[0], client_address[1], total_duration, transfer_size, args.format, rate_server))
@@ -80,7 +80,7 @@ def server(args):
 
         t.start()
        
-import re
+
 
 def parse_size(val):
     match = re.match(r"([0-9]+)([a-z]+)", val, re.I)
@@ -107,21 +107,30 @@ def client(args):
         print("---------------------------------------------")
         print("Simpleperf client connecting to server {}, port {}".format(args.server_ip, args.server_port))
         print("---------------------------------------------")
+        
         start_time = time.time()
 
         amount_of_bytes_sent = 0
-
-        if args.no_of_bytes:
-            bytes_to_send = parse_size(args.no_of_bytes)
-            while amount_of_bytes_sent < bytes_to_send:
-                data = bytes(1000)
-
-                client_socket.sendall(data)
-                amount_of_bytes_sent += len(data)
+        print("-" * 55)
+        print("{:<25} {:<10} {:15} {:<15}".format("ID", "Interval", "Transfer", "Bandwidth"))
+        print("_" *60)
+        if args.interval:
+            interval_start_time = start_time
+            interval_bytes_sent = 0
+            for i in range(args.interval, args.total_time + args.interval, args.interval):
+                while time.time() - interval_start_time < args.interval:
+                    data = bytes(1000)
+                    client_socket.sendall(data)
+                    amount_of_bytes_sent += len(data)
+                    interval_bytes_sent += len(data)
+                duration = args.interval
+                rate_client = (interval_bytes_sent * 8) / (duration * 1000000)
+                print("{:<25} {:<10} {:<15} {:.2f} Mbps".format("{}:{}".format(args.server_ip, args.server_port), "{}-{}".format(i - args.interval, i), "{:.1f} MB".format(interval_bytes_sent / 1000000), rate_client))
+                interval_bytes_sent = 0
+                interval_start_time = time.time()
         else:
             while time.time() - start_time < args.total_time:
                 data = bytes(1000)
-
                 client_socket.sendall(data)
                 amount_of_bytes_sent += len(data)
 
@@ -137,44 +146,20 @@ def client(args):
         total_time_elapsed = time.time() - start_time
         rate_client = amount_of_bytes_sent * 8 / (total_time_elapsed * 1000000)
 
-              
-        print("---------------------------------------------")
-        print("{:<25} {:<10} {:<15} {:<15}".format("ID", "Interval", "Transfer", "Bandwidth"))
-        print("-" * 55)
-        if args.interval:
-           
-            for i in range(0, args.total_time, args.interval):
-                if i != 0:
-                    time.sleep(args.interval)
-                if i + args.interval > args.total_time:
-                    duration = args.total_time - i
-                else:
-                    duration = args.interval
-                interval_bytes_sent = amount_of_bytes_sent * (duration / args.total_time)
-                amount_of_bytes_sent += interval_bytes_sent
-                rate_client = interval_bytes_sent / (duration * 1000000)
-               # rate_client = interval_bytes_sent * 8 / (duration * 1000000)
-               
-                print("{:<25} {:<10} {:<15} {:.2f} Mbps".format("{}:{}".format(args.server_ip, args.server_port), "{}-{}".format(i, i + duration), "{:.1f} MB".format(interval_bytes_sent / 1000000), rate_client))
-
         print("-" * 60)
         print("{:<25} {:<10} {:<15} {:.2f} Mbps".format("{}:{}".format(args.server_ip, args.server_port), "0-{}".format(args.total_time), "{:.1f} MB".format(amount_of_bytes_sent / 1000000), rate_client))
-        # ...
-       
-        successful_connections += 1
 
     threads = []
-    successful_connections = 0
 
     for _ in range(args.parallel):
         thread = threading.Thread(target=single_connection)
         thread.start()
         threads.append(thread)
         time.sleep(1)
-
+    successful_connections = 0
     for thread in threads:
         thread.join()
-
+        successful_connections += 1
     if successful_connections == args.parallel:
         print("All connections have completed successfully.")
 
