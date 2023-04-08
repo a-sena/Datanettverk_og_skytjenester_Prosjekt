@@ -52,7 +52,7 @@ def handle_client(client_socket, client_address, args):
     rate_server = (transfer_size * 8) / total_duration
     #Outputs to be printed on the server page
     print("{:<25} {:<10} {:<15} {:<15}".format("ID", "Interval", "Received", "Rate"))
-    print("{0}:{1:<15} 0.0 - {2}       {3:.0f} {4:<2}      {5:.2f} Mbps".format(client_address[0], client_address[1], int(total_duration), transfer_size, args.format, rate_server))
+    print("{0}:{1:<15} 0.0 - {2}       {3:.0f} {4:<2}      {5:.2f} Mbps".format(client_address[0], client_address[1], total_duration, transfer_size, args.format, rate_server))
 
     client_socket.send(b"ACK: BYE") # message to client that indicates receiving data is finished
     client_socket.close()
