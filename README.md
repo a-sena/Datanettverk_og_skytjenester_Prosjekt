@@ -7,7 +7,7 @@ So make sure to use the s and c flags, but not on the same command line
 You will also get an error message if you enter the c and s flags on the same command line 
   
   
-If you want to run the tests, you must first open virtualbox. You must have downloaded mininet in order to run the tests. 
+If you want to run the tests, you should first open virtualbox. You must have downloaded mininet in order to run the tests. 
 After downloading Mininet, clone this code file containing simpleperf and portfolio-topology to virtualbox. 
 When this is done, open terminal in Virtualbox and open the file containing simpleperf and portfolio-topology with the command "cd" and enter the command "sudo python3 portfolio-topology.py". 
 If you get an error message, enter the command " sudo fuser -k 6653/tcp". 
