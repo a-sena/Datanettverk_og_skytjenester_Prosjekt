@@ -99,7 +99,7 @@ def handle_client(clientSocket, clientAddress, args): #takes clientSocket, clien
     print("{:<25} {:<10} {:<15} {:<15}".format("ID", "Interval", "Received", "Rate"))
     print("{0}:{1:<15} 0.0 - {2:.0f}       {3:.0f} {4:<2}      {5:.2f} Mbps".format(clientAddress[0], clientAddress[1], total_duration, transfer_size, args.format, rate_server))
 
-    clientSocket.send(b"ACK: BYE") # message to client that indicates receiving data is finished
+    clientSocket.send(b"ACK: BYE") # indicates receiving data is finished
     clientSocket.close() #close the socket
 
 ############### SERVER FUNCTION STARTS HERE #######################################
