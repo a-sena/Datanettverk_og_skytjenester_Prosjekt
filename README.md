@@ -1,5 +1,9 @@
 # portfo1
-This code is  simplified version of iperf.
+I implemented a simple network throughput measurement tool called simpleperf. This tool sends and receives packets between a client and a server using sockets.
+When run in server mode, simpleperf receives TCP packets and tracks how much data was received from the connected clients; it calculates and displays the bandwidth based on how much data was received and how much time passed during the connection.
+When simpleperf is invoked in a client mode, it establishs a TCP connection with the simpleperf server and send data in chunks of 1000 bytes for t seconds specified with -t or –time flag. Calculate the total
+of the number of bytes sent. After the client finishes sending its data, it sends a finish/bye message and wait for an acknowledgement before exiting the program. Simpleperf calculates and display the bandwidth based on how much data was sent in the elapsed time
+
 To run simpleperf in server mode with the default options, you should invoke with "python3 simpleperf.py -s".
 To invoke the client, you can enter the command "python3 simpleperf -c -I <server_ip> -p <server_port> -t <time>".
 If you try to run simpleperf without using the c and s flags, you will get an error message.
